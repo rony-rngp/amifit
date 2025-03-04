@@ -16,8 +16,15 @@ return new class extends Migration
             $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
             $table->string('time');
             $table->string('food');
+            $table->bigInteger('food_id');
             $table->string('serving_size');
-            $table->string('tips');
+            $table->float('carbohydrate')->default(0);
+            $table->float('protein')->default(0);
+            $table->float('fat')->default(0);
+            $table->float('fiber')->default(0);
+            $table->float('sugar')->default(0);
+            $table->float('calorie')->default(0);
+            $table->string('tips')->nullable();
             $table->timestamps();
         });
     }

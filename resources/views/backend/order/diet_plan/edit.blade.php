@@ -1,29 +1,29 @@
-<form id="quickForm" action="{{ route('admin.orders.store_diet_plan', $order_id) }}" class="ajax-submit">
+<form id="quickForm" action="{{ route('admin.orders.update_diet_plan', $diet_plan->id) }}" class="ajax-submit">
     @csrf
 
     <div class="mb-4 col-md-12">
         <label class="form-label">Time <i class="text-danger">*</i></label>
-        <input type="text" class="form-control" name="time" required >
+        <input type="text" class="form-control" value="{{ $diet_plan->time }}" name="time" required >
     </div>
     <div class="mb-4 col-md-12 position-relative">
         <label class="form-label">Food <i class="text-danger">*</i></label>
-        <input type="text" class="form-control" autocomplete="off" id="food" name="food" required >
-        <a href="javascript:void(0)" style="display: none;" id="nutritionDetails" target="_blank">Food Nutrition Details</a>
+        <input type="text" class="form-control" value="{{ $diet_plan->food }}" autocomplete="off" id="food" name="food" required >
+        <a href="{{ route('admin.food_details', $diet_plan->food_id) }}"  id="nutritionDetails" target="_blank">Food Nutrition Details</a>
         <ul id="food-suggestions" class="list-group position-absolute w-100" style="top: 100%; z-index: 10; display: none;background: white;max-height: 500px; overflow-y: auto;"></ul>
     </div>
 
-    <input type="hidden" name="food_id" id="nutritionFoodID">
+    <input type="hidden" name="food_id" value="{{ $diet_plan->food_id }}" id="nutritionFoodID">
 
     <div class="mb-4 col-md-12">
         <label class="form-label" for="serving_size">Serving Size <i class="text-danger">*</i></label>
-        <input type="text" class="form-control" name="serving_size" required >
+        <input type="text" class="form-control" name="serving_size" value="{{ $diet_plan->serving_size }}" required >
     </div>
     <div class="mb-4 col-md-12">
         <label class="form-label" for="tips">Tips </label>
-        <input type="text" class="form-control" name="tips"  >
+        <input type="text" class="form-control" name="tips" value="{{ $diet_plan->tips }}" >
     </div>
 
-    <button type="submit" class="btn btn-primary ">Submit</button>
+    <button type="submit" class="btn btn-primary ">Update</button>
 
 </form>
 

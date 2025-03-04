@@ -202,49 +202,59 @@
                             <a href="{{ route('admin.orders.add_diet_plan', $order->id) }}" class="btn btn-primary btn-sm ajax-modal" data-title="Add Diet Plan">Add Diet Plan</a>
                         </div>
                     </div>
-                    <div class="card-body">
-                        @if(count($order->diet_plans) > 0)
-                            @foreach($order->diet_plans ?? [] as $diet_plan)
-                                <form class="ajax-submit" action="{{ route('admin.orders.update_diet_plan', $diet_plan->id) }}" method="post">
-                                    @csrf
-                                    <div class="row mb-4">
-                                        <div class="mb-4 col-md-3">
-                                            <label class="form-label">Time <i class="text-danger">*</i></label>
-                                            <input type="text" class="form-control" value="{{ $diet_plan->time }}" name="time" required >
-                                        </div>
-                                        <div class="mb-4 col-md-3">
-                                            <label class="form-label">Food <i class="text-danger">*</i></label>
-                                            <input type="text" class="form-control" value="{{ $diet_plan->food }}" name="food" required >
-                                        </div>
-                                        <div class="mb-4 col-md-3">
-                                            <label class="form-label" for="serving_size">Serving Size <i class="text-danger">*</i></label>
-                                            <input type="text" class="form-control" value="{{ $diet_plan->serving_size }}" name="serving_size" required >
-                                        </div>
-                                        <div class="mb-4 col-md-3">
-                                            <label class="form-label" for="tips">Tips <i class="text-danger">*</i></label>
-                                            <input type="text" class="form-control" value="{{ $diet_plan->tips }}" name="tips" required >
-                                        </div>
-                                        <div class="mb-4 col-md-12">
-                                            <button type="submit" class="btn btn-sm btn-primary validate">Update</button>
+                    @if(count($order->diet_plans) > 0)
+
+                        <div class="table-responsive text-nowrap">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Food</th>
+                                    <th>Serving Size</th>
+                                    <th>Carbohydrate (g)</th>
+                                    <th>Protein (g)</th>
+                                    <th>Fat (g)</th>
+                                    <th>Fiber (g)</th>
+                                    <th>Sugars (g)</th>
+                                    <th>Calories</th>
+                                    <th>Tips</th>
+                                    <th>Action</th>
+                                </tr>
+                                </thead>
+                                <tbody class="table-border-bottom-0">
+                                @forelse($order->diet_plans as $diet_plan)
+                                    <tr>
+                                        <td>{{ $diet_plan->time }}</td>
+                                        <td title="{{ $diet_plan->food }}">
+                                            {{ Str::limit($diet_plan->food, 30) }}
+                                        </td>
+                                        <td>{{ $diet_plan->serving_size }}</td>
+                                        <td>{{ $diet_plan->carbohydrate }}</td>
+                                        <td>{{ $diet_plan->protein }}</td>
+                                        <td>{{ $diet_plan->fat }}</td>
+                                        <td>{{ $diet_plan->fiber }}</td>
+                                        <td>{{ $diet_plan->sugar }}</td>
+                                        <td>{{ $diet_plan->calorie }}</td>
+                                        <td>{{ $diet_plan->tips != '' ? $diet_plan->tips :  '-' }}</td>
+                                        <td>
+                                            <a  href="{{ route('admin.orders.edit_diet_plan', $diet_plan->id) }}" data-title="Edit Diet Plan" class="btn btn-sm btn-primary ajax-modal">Edit</a>
                                             &nbsp;
                                             <a onclick="return confirm('Are you sure?')" href="{{ route('admin.orders.destroy_diet_plan', $diet_plan->id) }}" class="btn btn-sm btn-danger">Delete</a>
-                                        </div>
-                                    </div>
-                                </form>
-                            @endforeach
-                        @else
-                            <p class="text-center text-danger fw-bold m-0">No diet plan found. pleas add new diet plan</p>
-                        @endif
 
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="text-center">Data not found</td>
+                                    </tr>
+                                @endforelse
+                                </tbody>
+                            </table>
+                        </div>
 
-                        {{--<div class="col-md-12" id="newRow1"></div>
-
-
-                        <div class="col-md-12 mb-4">
-                            <a href="javascript:void(0)" id="addRow1" class="new_btn bg_warning mr-2">Add New Options</a>
-                        </div>--}}
-
-                    </div>
+                    @else
+                        <p class="text-center text-danger fw-bold m-0">No diet plan found. pleas add new diet plan</p>
+                    @endif
                 </div>
             </div>
 
@@ -289,7 +299,7 @@
 
                                         <div class="mb-4 col-md-3">
                                             <div style="margin-top: 26px">
-                                                <button type="submit" class="btn btn-sm btn-primary validate">Update</button>
+                                                <button type="submit" class="btn btn-sm btn-primary ">Update</button>
                                                 &nbsp;
                                                 <a onclick="return confirm('Are you sure?')" href="{{ route('admin.orders.destroy_workout_plan', $workout_plan->id) }}" class="btn btn-sm btn-danger">Delete</a>
                                             </div>
@@ -323,7 +333,7 @@
                                 <textarea rows="5" class="form-control" name="guideline" required >{{ $order->guideline }}</textarea>
                             </div>
                             <div>
-                                <button type="submit" class="btn  btn-primary validate">Update Guideline</button>
+                                <button type="submit" class="btn  btn-primary ">Update Guideline</button>
                             </div>
                         </form>
                     </div>
@@ -345,7 +355,7 @@
                                 <textarea rows="5" class="form-control" name="motivational_boost" required >{{ $order->motivational_boost }}</textarea>
                             </div>
                             <div>
-                                <button type="submit" class="btn  btn-primary validate">Update </button>
+                                <button type="submit" class="btn  btn-primary ">Update </button>
                             </div>
                         </form>
                     </div>
@@ -367,7 +377,7 @@
                                 <textarea rows="3" class="form-control" name="today_win" required >{{ $order->today_win }}</textarea>
                             </div>
                             <div>
-                                <button type="submit" class="btn  btn-primary validate">Update </button>
+                                <button type="submit" class="btn  btn-primary ">Update </button>
                             </div>
                         </form>
                     </div>
@@ -390,7 +400,7 @@
                                 <textarea rows="3" class="form-control" name="focus_area" required >{{ $order->focus_area }}</textarea>
                             </div>
                             <div>
-                                <button type="submit" class="btn  btn-primary validate">Update </button>
+                                <button type="submit" class="btn  btn-primary ">Update </button>
                             </div>
                         </form>
                     </div>

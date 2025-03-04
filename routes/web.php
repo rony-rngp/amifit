@@ -73,7 +73,10 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function (){
 
             //diet plan
             Route::get('orders/add-diet-plan/{order_id}', 'add_diet_plan')->name('orders.add_diet_plan');
+            Route::get('/search-food', 'search_food')->name('search_food');
+            Route::get('/food-details/{id}', 'food_details')->name('food_details');
             Route::post('orders/store-diet-plan/{order_id}', 'store_diet_plan')->name('orders.store_diet_plan');
+            Route::get('orders/edit-diet-plan/{id}', 'edit_diet_plan')->name('orders.edit_diet_plan');
             Route::post('orders/update-diet-plan/{id}', 'update_diet_plan')->name('orders.update_diet_plan');
             Route::get('orders/destroy-diet-plan/{id}', 'destroy_diet_plan')->name('orders.destroy_diet_plan');
 

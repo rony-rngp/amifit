@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
 use App\Models\DietPlan;
+use App\Models\FoodNutrition;
 use App\Models\Guideline;
 use App\Models\Order;
 use App\Models\OrderPayment;
@@ -14,6 +15,7 @@ use App\Models\WorkoutPlan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -464,26 +466,86 @@ class UserController extends Controller
         return view('backend.order.diet_plan.create', compact('order_id'));
     }
 
+    public function search_food(Request $request)
+    {
+        $food_nutrition = DB::table('food_nutrition')
+            ->where('Name', 'LIKE', '%' . $request->query('query') . '%')
+            ->select('id', 'Name')
+            ->get();
+        return response()->json(['suggestions' => $food_nutrition]);
+
+    }
+
+    public function food_details($id)
+    {
+        $columns = Schema::getColumnListing('food_nutrition');
+        $food_nutrition = FoodNutrition::where('id', $id)->first();
+        return view('backend.order.diet_plan.food_nutrition_details', compact('columns', 'food_nutrition'));
+    }
+
     public function store_diet_plan(Request $request, $order_id)
     {
         $validator = Validator::make($request->all(), [
             'time' => 'required',
             'food' => 'required',
             'serving_size' => 'required',
-            'tips' => 'required',
         ]);
         if ($validator->fails()) {
             return response()->json(['result' => 'error', 'message' => $validator->errors()->all()]);
         }
+
+        if($request->food_id == ''){
+            return response()->json(['result' => 'error', 'message' => ['food' => 'Please select a food from dropdown']]);
+        }
+
+        $food_nutrition = FoodNutrition::where('id', $request->food_id)->first();
+        if ($food_nutrition == null){
+            return response()->json(['result' => 'error', 'message' => ['food' => 'Food not found']]);
+        }
+        $serving_size = $request->serving_size;
+
+        $carbohydrate = (@$food_nutrition['Carbohydrate_(g)'] * $serving_size)/ 100;
+        $carbohydrate = round($carbohydrate, 2);
+
+        $protein = (@$food_nutrition['Protein_(g)'] * $serving_size)/ 100;
+        $protein = round($protein, 2);
+
+        $fat = (@$food_nutrition['Fat_(g)'] * $serving_size)/ 100;
+        $fat = round($fat, 2);
+
+        $fiber = (@$food_nutrition['Fiber_(g)'] * $serving_size)/ 100;
+        $fiber = round($fiber, 2);
+
+        $sugar = (@$food_nutrition['Sugars_(g)'] * $serving_size)/ 100;
+        $sugar = round($sugar, 2);
+
+        $calorie = (@$food_nutrition['Calories'] * $serving_size)/ 100;
+        $calorie = round($calorie, 2);
+
 
         $diet_plan = new DietPlan();
         $diet_plan->order_id = $order_id;
         $diet_plan->time = $request->time;
         $diet_plan->food = $request->food;
         $diet_plan->serving_size = $request->serving_size;
-        $diet_plan->tips = $request->tips;
+        $diet_plan->tips = $request->tips ?? '';
+
+        $diet_plan->food_id = $request->food_id;
+        $diet_plan->carbohydrate = $carbohydrate;
+        $diet_plan->protein = $protein;
+        $diet_plan->fat = $fat;
+        $diet_plan->fiber = $fiber;
+        $diet_plan->sugar = $sugar;
+        $diet_plan->calorie = $calorie;
+
         $diet_plan->save();
         return response()->json(['result' => 'success', 'message' => 'Diet plan added successfully.']);
+    }
+
+    public function edit_diet_plan($id)
+    {
+        $diet_plan = DietPlan::find($id);
+        return view('backend.order.diet_plan.edit', compact('diet_plan'));
     }
 
     public function update_diet_plan(Request $request, $id)
@@ -492,16 +554,54 @@ class UserController extends Controller
             'time' => 'required',
             'food' => 'required',
             'serving_size' => 'required',
-            'tips' => 'required',
         ]);
         if ($validator->fails()) {
             return redirect()->back()->with('error', 'Validation failed. please fill all inputs');
         }
+
+        if($request->food_id == ''){
+            return response()->json(['result' => 'error', 'message' => ['food' => 'Please select a food from dropdown']]);
+        }
+
+        $food_nutrition = FoodNutrition::where('id', $request->food_id)->first();
+        if ($food_nutrition == null){
+            return response()->json(['result' => 'error', 'message' => ['food' => 'Food not found']]);
+        }
+        $serving_size = $request->serving_size;
+
+        $carbohydrate = (@$food_nutrition['Carbohydrate_(g)'] * $serving_size)/ 100;
+        $carbohydrate = round($carbohydrate, 2);
+
+        $protein = (@$food_nutrition['Protein_(g)'] * $serving_size)/ 100;
+        $protein = round($protein, 2);
+
+        $fat = (@$food_nutrition['Fat_(g)'] * $serving_size)/ 100;
+        $fat = round($fat, 2);
+
+        $fiber = (@$food_nutrition['Fiber_(g)'] * $serving_size)/ 100;
+        $fiber = round($fiber, 2);
+
+        $sugar = (@$food_nutrition['Sugars_(g)'] * $serving_size)/ 100;
+        $sugar = round($sugar, 2);
+
+        $calorie = (@$food_nutrition['Calories'] * $serving_size)/ 100;
+        $calorie = round($calorie, 2);
+
+
         $diet_plan = DietPlan::find($id);
         $diet_plan->time = $request->time;
         $diet_plan->food = $request->food;
         $diet_plan->serving_size = $request->serving_size;
-        $diet_plan->tips = $request->tips;
+        $diet_plan->tips = $request->tips ?? '';
+
+        $diet_plan->food_id = $request->food_id;
+        $diet_plan->carbohydrate = $carbohydrate;
+        $diet_plan->protein = $protein;
+        $diet_plan->fat = $fat;
+        $diet_plan->fiber = $fiber;
+        $diet_plan->sugar = $sugar;
+        $diet_plan->calorie = $calorie;
+
         $diet_plan->save();
         return response()->json(['result' => 'success', 'message' => 'Diet plan updated successfully.']);
     }
