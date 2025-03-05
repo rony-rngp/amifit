@@ -6,7 +6,7 @@
         <input type="text" class="form-control" value="{{ $diet_plan->time }}" name="time" required >
     </div>
     <div class="mb-4 col-md-12 position-relative">
-        <label class="form-label">Food <i class="text-danger">*</i></label>
+        <label class="form-label">Food <i class="text-danger">*</i> <a target="_blank" href="{{ route('admin.add_food_nutrition') }}">Add Food Nutrition</a></label>
         <input type="text" class="form-control" value="{{ $diet_plan->food }}" autocomplete="off" id="food" name="food" required >
         <a href="{{ route('admin.food_details', $diet_plan->food_id) }}"  id="nutritionDetails" target="_blank">Food Nutrition Details</a>
         <ul id="food-suggestions" class="list-group position-absolute w-100" style="top: 100%; z-index: 10; display: none;background: white;max-height: 500px; overflow-y: auto;"></ul>
@@ -70,7 +70,14 @@
             $("#food").val($(this).text());
 
             const foodId = $(this).data('id');
-            const nutritionUrl = `/admin/food-details/${foodId}`;
+
+            let nutritionUrl;
+            if(foodId > 789770){
+                nutritionUrl = `/admin/add-food-nutrition/${foodId}`;
+            }else{
+                nutritionUrl = `/admin/food-details/${foodId}`;
+            }
+
             $('#nutritionDetails').attr('href', nutritionUrl);
             $('#nutritionDetails').show();
 

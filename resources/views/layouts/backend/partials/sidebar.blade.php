@@ -95,6 +95,13 @@
             </a>
         </li>
 
+        <li class="menu-item {{ request()->is('admin/exercise*') ? 'active' : '' }}">
+            <a href="{{ route('admin.exercises.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-cart"></i>
+                <div class="text-truncate">Exercise</div>
+            </a>
+        </li>
+
         <li class="menu-item {{ request()->is('admin/users*') ? 'active' : '' }}">
             <a href="{{ route('admin.users.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-user"></i>

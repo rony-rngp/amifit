@@ -75,6 +75,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function (){
             Route::get('orders/add-diet-plan/{order_id}', 'add_diet_plan')->name('orders.add_diet_plan');
             Route::get('/search-food', 'search_food')->name('search_food');
             Route::get('/food-details/{id}', 'food_details')->name('food_details');
+            Route::match(['get', 'post'],'/add-food-nutrition/{food_id?}', 'add_food_nutrition')->name('add_food_nutrition');
             Route::post('orders/store-diet-plan/{order_id}', 'store_diet_plan')->name('orders.store_diet_plan');
             Route::get('orders/edit-diet-plan/{id}', 'edit_diet_plan')->name('orders.edit_diet_plan');
             Route::post('orders/update-diet-plan/{id}', 'update_diet_plan')->name('orders.update_diet_plan');
@@ -82,6 +83,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function (){
 
             //workout plan
             Route::match(['get', 'post'],'orders/add-workout-plan/{order_id}', 'add_workout_plan')->name('orders.add_workout_plan');
+            Route::get('orders/edit-workout-plan/{id}', 'edit_workout_plan')->name('orders.edit_workout_plan');
             Route::post('orders/update-workout-plan/{id}', 'update_workout_plan')->name('orders.update_workout_plan');
             Route::get('orders/destroy-workout-plan/{id}', 'destroy_workout_plan')->name('orders.destroy_workout_plan');
 
@@ -93,6 +95,16 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function (){
 
 
             Route::post('orders/update-status/{order_id}', 'update_order_status')->name('orders.update_status');
+
+            //exercise
+            Route::controller(\App\Http\Controllers\Backend\ExerciseController::class)->group(function (){
+                Route::get('exercises', 'index')->name('exercises.index');
+                Route::get('exercises/create', 'create')->name('exercises.create');
+                Route::post('exercises/store', 'store')->name('exercises.store');
+                Route::get('exercises/edit/{id}', 'edit')->name('exercises.edit');
+                Route::post('exercises/update/{id}', 'update')->name('exercises.update');
+            });
+
 
         });
 

@@ -3,13 +3,13 @@
 @section('title', 'Order Details')
 
 @push('css')
-
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
 @endpush
 
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="row mb-6">
-
             <div class="col-md-12 ">
                 @if($order->status == 'Running')
                 <div class="alert alert-primary fw-bold" role="alert">
@@ -210,7 +210,7 @@
                                 <tr>
                                     <th>Time</th>
                                     <th>Food</th>
-                                    <th>Serving Size</th>
+                                    <th>Serving Size (g)</th>
                                     <th>Carbohydrate (g)</th>
                                     <th>Protein (g)</th>
                                     <th>Fat (g)</th>
@@ -222,6 +222,14 @@
                                 </tr>
                                 </thead>
                                 <tbody class="table-border-bottom-0">
+                                <?php
+                                $total_carbohydrate = 0;
+                                $total_protein = 0;
+                                $total_fat = 0;
+                                $total_fiber = 0;
+                                $total_sugar = 0;
+                                $total_calorie = 0;
+                                ?>
                                 @forelse($order->diet_plans as $diet_plan)
                                     <tr>
                                         <td>{{ $diet_plan->time }}</td>
@@ -243,17 +251,36 @@
 
                                         </td>
                                     </tr>
+                                    <?php
+                                    $total_carbohydrate += $diet_plan->carbohydrate;
+                                    $total_protein += $diet_plan->protein;
+                                    $total_fat += $diet_plan->fat;
+                                    $total_fiber += $diet_plan->fiber;
+                                    $total_sugar += $diet_plan->sugar;
+                                    $total_calorie += $diet_plan->calorie;
+                                    ?>
                                 @empty
                                     <tr>
                                         <td colspan="4" class="text-center">Data not found</td>
                                     </tr>
                                 @endforelse
                                 </tbody>
+                                <tfoot>
+                                <tr>
+                                    <td colspan="3" class="text-end">Total :</td>
+                                    <td>{{ $total_carbohydrate }}</td>
+                                    <td>{{ $total_protein }}</td>
+                                    <td>{{ $total_fat }}</td>
+                                    <td>{{ $total_fiber }}</td>
+                                    <td>{{ $total_sugar }}</td>
+                                    <td>{{ $total_calorie }}</td>
+                                </tr>
+                                </tfoot>
                             </table>
                         </div>
 
                     @else
-                        <p class="text-center text-danger fw-bold m-0">No diet plan found. pleas add new diet plan</p>
+                        <p class="text-center text-danger fw-bold m-0 p-8">No diet plan found. pleas add new diet plan</p>
                     @endif
                 </div>
             </div>
@@ -263,56 +290,109 @@
                     <div class="d-flex justify-content-between align-items-center border-bottom">
                         <h5 class="card-header">Workout Plan </h5>
                         <div class="me-5">
-                            <a href="{{ route('admin.orders.add_workout_plan', $order->id) }}" class="btn btn-primary btn-sm ajax-modal" data-title="Add Workout Plan">Add Workout Plan</a>
+                            <a href="{{ route('admin.orders.add_workout_plan', $order->id) }}" data-size="xl" class="btn btn-primary btn-sm ajax-modal" data-title="Add Workout Plan">Add Workout Plan</a>
                         </div>
                     </div>
-                    <div class="card-body">
-                        @if(count($order->workout_plans) > 0)
-                            @foreach($order->workout_plans ?? [] as $workout_plan)
-                                <form class="ajax-submit" action="{{ route('admin.orders.update_workout_plan', $workout_plan->id) }}" method="post">
-                                    @csrf
-                                    <div class="row mb-4">
-                                        <div class="mb-4 col-md-3">
-                                            <label class="form-label">Day <i class="text-danger">*</i></label>
-                                            <input type="text" class="form-control" value="{{ $workout_plan->day }}" name="day" required >
-                                        </div>
-                                        <div class="mb-4 col-md-3">
-                                            <label class="form-label">Workout <i class="text-danger">*</i></label>
-                                            <input type="text" class="form-control" value="{{ $workout_plan->workout }}" name="workout" required >
-                                        </div>
-                                        <div class="mb-4 col-md-3">
-                                            <label class="form-label" for="sets">Sets <i class="text-danger">*</i></label>
-                                            <input type="text" class="form-control" value="{{ $workout_plan->sets }}" name="sets" required >
-                                        </div>
-                                        <div class="mb-4 col-md-3">
-                                            <label class="form-label" for="tips">Reps <i class="text-danger">*</i></label>
-                                            <input type="text" class="form-control" value="{{ $workout_plan->reps }}" name="reps" required >
-                                        </div>
-                                        <div class="mb-4 col-md-3">
-                                            <label class="form-label" for="tips">Rest <i class="text-danger">*</i></label>
-                                            <input type="text" class="form-control" value="{{ $workout_plan->rest }}" name="rest" required >
-                                        </div>
-                                        <div class="mb-4 col-md-3">
-                                            <label class="form-label" for="tips">Suggestion <i class="text-danger">*</i></label>
-                                            <input type="text" class="form-control" value="{{ $workout_plan['suggestion'] }}" name="suggestion" required >
-                                        </div>
+                    @if(count($order->workout_plans) > 0)
 
-                                        <div class="mb-4 col-md-3">
-                                            <div style="margin-top: 26px">
-                                                <button type="submit" class="btn btn-sm btn-primary ">Update</button>
-                                                &nbsp;
-                                                <a onclick="return confirm('Are you sure?')" href="{{ route('admin.orders.destroy_workout_plan', $workout_plan->id) }}" class="btn btn-sm btn-danger">Delete</a>
-                                            </div>
+                        <div class="nav-align-top nav-tabs-shadow ">
+                            <ul class="nav nav-tabs" role="tablist" style="overflow: auto">
+                                <li class="nav-item" role="presentation">
+                                    @php($key=0)
+                                    @foreach($workout_data as $day => $dt)
+                                    <button type="button" style="width: auto" class="nav-link {{ $key == 0 ? 'active' : '' }}" role="tab" data-bs-toggle="tab" data-bs-target="#{{ $day }}" aria-controls="navs-top-home" aria-selected="true">
+                                        {{ str_replace('_', ' ', $day) }}
+                                    </button>
+                                    @php($key++)
+                                    @endforeach
+                                </li>
+                            </ul>
+                            <div class="tab-content" style="padding: 0">
+                                @php($key2=0)
+                                @foreach($workout_data as $day => $wk_data)
+                                <div class="tab-pane fade {{ $key2 == 0 ? 'active show' : '' }}" id="{{ $day }}" role="tabpanel">
+                                    <div class="table-responsive text-nowrap">
+                                        <table class="table table-bordered">
+                                            <thead>
+                                            <tr>
+                                                <th>Workout</th>
+                                                <th>Weight</th>
+                                                <th>Sets</th>
+                                                <th>Reps</th>
+                                                <th>Rest</th>
+                                                <th>Suggestion</th>
+                                                <th>Action</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody class="table-border-bottom-0">
+
+                                            @foreach($wk_data ?? [] as $workout_data)
+                                                <tr>
+                                                    <td title="{{ $workout_data['workout'] }}">{{ \Illuminate\Support\Str::limit($workout_data['workout'], 30) }}</td>
+                                                    <td>{{ $workout_data['weight'] }}</td>
+                                                    <td>{{ $workout_data['sets'] }}</td>
+                                                    <td>{{ $workout_data['reps'] }}</td>
+                                                    <td>{{ $workout_data['rest'] }}</td>
+                                                    <td title="{{ $workout_data['suggestion'] }}">{{ \Illuminate\Support\Str::limit($workout_data['suggestion'], 20) }}</td>
+                                                    <td>
+                                                        <a  href="{{ route('admin.orders.edit_workout_plan', $workout_data->id) }}" data-size="xl" data-title="Edit Workout Plan" class="btn btn-sm btn-primary ajax-modal">Edit</a>
+                                                        &nbsp;
+                                                        <a onclick="return confirm('Are you sure?')" href="{{ route('admin.orders.destroy_workout_plan', $workout_data->id) }}" class="btn btn-sm btn-danger">Delete</a>
+
+                                                    </td>
+                                                </tr>
+                                             @php($key2++)
+                                            @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        {{--@foreach($order->workout_plans ?? [] as $workout_plan)
+                            <form class="ajax-submit" action="{{ route('admin.orders.update_workout_plan', $workout_plan->id) }}" method="post">
+                                @csrf
+                                <div class="row mb-4">
+                                    <div class="mb-4 col-md-3">
+                                        <label class="form-label">Day <i class="text-danger">*</i></label>
+                                        <input type="text" class="form-control" value="{{ $workout_plan->day }}" name="day" required >
+                                    </div>
+                                    <div class="mb-4 col-md-3">
+                                        <label class="form-label">Workout <i class="text-danger">*</i></label>
+                                        <input type="text" class="form-control" value="{{ $workout_plan->workout }}" name="workout" required >
+                                    </div>
+                                    <div class="mb-4 col-md-3">
+                                        <label class="form-label" for="sets">Sets <i class="text-danger">*</i></label>
+                                        <input type="text" class="form-control" value="{{ $workout_plan->sets }}" name="sets" required >
+                                    </div>
+                                    <div class="mb-4 col-md-3">
+                                        <label class="form-label" for="tips">Reps <i class="text-danger">*</i></label>
+                                        <input type="text" class="form-control" value="{{ $workout_plan->reps }}" name="reps" required >
+                                    </div>
+                                    <div class="mb-4 col-md-3">
+                                        <label class="form-label" for="tips">Rest <i class="text-danger">*</i></label>
+                                        <input type="text" class="form-control" value="{{ $workout_plan->rest }}" name="rest" required >
+                                    </div>
+                                    <div class="mb-4 col-md-3">
+                                        <label class="form-label" for="tips">Suggestion <i class="text-danger">*</i></label>
+                                        <input type="text" class="form-control" value="{{ $workout_plan['suggestion'] }}" name="suggestion" required >
+                                    </div>
+
+                                    <div class="mb-4 col-md-3">
+                                        <div style="margin-top: 26px">
+                                            <button type="submit" class="btn btn-sm btn-primary ">Update</button>
+                                            &nbsp;
+                                            <a onclick="return confirm('Are you sure?')" href="{{ route('admin.orders.destroy_workout_plan', $workout_plan->id) }}" class="btn btn-sm btn-danger">Delete</a>
                                         </div>
                                     </div>
-                                </form>
-                            @endforeach
-                        @else
-                            <p class="text-center text-danger fw-bold m-0">No workout plan found. pleas add new diet plan</p>
-                        @endif
-
-
-                    </div>
+                                </div>
+                            </form>
+                        @endforeach--}}
+                    @else
+                        <p class="text-center text-danger fw-bold m-0 p-8">No workout plan found. pleas add new workout plan</p>
+                    @endif
                 </div>
             </div>
 

@@ -81,7 +81,7 @@
             {{--@php($payment_data = checkPayment($order->id, $order->start_date, $order->end_date))--}}
             @if($payment_data['payment_status'] == 'Paid')
                 <div class="row">
-                    <div class="col-md-5 mb-6">
+                    <div class="col-md-12 mb-6">
                         <div class="card">
                             <div class="d-flex justify-content-between align-items-center" >
                                 <h5 class="card-header">Diet Plan</h5>
@@ -92,30 +92,71 @@
                                     <tr>
                                         <th>Time</th>
                                         <th>Food</th>
-                                        <th>Serving Size</th>
+                                        <th>Serving Size (g)</th>
+                                        <th>Carbohydrate (g)</th>
+                                        <th>Protein (g)</th>
+                                        <th>Fat (g)</th>
+                                        <th>Fiber (g)</th>
+                                        <th>Sugars (g)</th>
+                                        <th>Calories</th>
                                         <th>Tips</th>
                                     </tr>
                                     </thead>
                                     <tbody class="table-border-bottom-0">
+                                    <?php
+                                        $total_carbohydrate = 0;
+                                        $total_protein = 0;
+                                        $total_fat = 0;
+                                        $total_fiber = 0;
+                                        $total_sugar = 0;
+                                        $total_calorie = 0;
+                                    ?>
                                     @forelse($order->diet_plans as $diet_plan)
                                         <tr>
                                             <td>{{ $diet_plan->time }}</td>
-                                            <td>{{ $diet_plan->food }}</td>
+                                            <td title="{{ $diet_plan->food }}">
+                                                {{ Str::limit($diet_plan->food, 30) }}
+                                            </td>
                                             <td>{{ $diet_plan->serving_size }}</td>
-                                            <td>{{ $diet_plan->tips }}</td>
+                                            <td>{{ $diet_plan->carbohydrate }}</td>
+                                            <td>{{ $diet_plan->protein }}</td>
+                                            <td>{{ $diet_plan->fat }}</td>
+                                            <td>{{ $diet_plan->fiber }}</td>
+                                            <td>{{ $diet_plan->sugar }}</td>
+                                            <td>{{ $diet_plan->calorie }}</td>
+                                            <td>{{ $diet_plan->tips != '' ? $diet_plan->tips :  '-' }}</td>
                                         </tr>
+                                        <?php
+                                        $total_carbohydrate += $diet_plan->carbohydrate;
+                                        $total_protein += $diet_plan->protein;
+                                        $total_fat += $diet_plan->fat;
+                                        $total_fiber += $diet_plan->fiber;
+                                        $total_sugar += $diet_plan->sugar;
+                                        $total_calorie += $diet_plan->calorie;
+                                        ?>
                                     @empty
                                         <tr>
-                                            <td colspan="4" class="text-center">Data not found</td>
+                                            <td colspan="10" class="text-center">Data not found</td>
                                         </tr>
                                     @endforelse
                                     </tbody>
+                                    <tfoot>
+                                    <tr>
+                                        <td colspan="3" class="text-end">Total :</td>
+                                        <td>{{ $total_carbohydrate }}</td>
+                                        <td>{{ $total_protein }}</td>
+                                        <td>{{ $total_fat }}</td>
+                                        <td>{{ $total_fiber }}</td>
+                                        <td>{{ $total_sugar }}</td>
+                                        <td>{{ $total_calorie }}</td>
+                                    </tr>
+                                    </tfoot>
                                 </table>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-md-7 mb-6">
+                    <div class="col-md-12 mb-6">
                         <div class="card">
                             <div class="d-flex justify-content-between align-items-center" >
                                 <h5 class="card-header">Workout Plan</h5>
@@ -178,12 +219,10 @@
                             <div class="card-body fw-bold">
                                 <?php
                                 $first_weight =  convertWeightKG($first_info->weight_unit, $first_info->weight);
-                                $first_height = convertHeightInMeter($first_info);
-                                $first_waist_measurement = convertInchToCM($first_info->waist_measurement_unit, $first_info->waist_measurement);
+                                $first_bmi = calculateBmi($first_info);
                                 if($last_info != null){
                                     $last_weight =  convertWeightKG($last_info->weight_unit, $last_info->weight);
-                                    $last_height = convertHeightInMeter($last_info);
-                                    $last_waist_measurement = convertInchToCM($last_info->waist_measurement_unit, $last_info->waist_measurement);
+                                    $last_bmi = calculateBmi($last_info);
                                 }
                                 ?>
 
@@ -195,12 +234,31 @@
                                 </span>
 
                                 <span class="d-block mb-2">
-                                    Height: {{ $last_info != null ? $last_height : $first_height }} Meters
+                                    BMI: {{ $last_info != null ? $last_bmi : $first_bmi }}
                                     @if($last_info != null)
-                                                ({{ !isNegative($last_height - $first_height) ? '+' : '' }}{{ $last_height - $first_height }} Meters)
+                                        ({{ !isNegative($last_bmi - $first_bmi) ? '+' : '' }}{{ $last_bmi - $first_bmi }})
                                     @endif
                                 </span>
 
+                                <?php
+                                $first_nick_measurement = convertInchToCM($first_info->neck_circumference_unit, $first_info->neck_circumference);
+                                if($last_info != null){
+                                    $last_nick_measurement = convertInchToCM($last_info->neck_circumference_unit, $last_info->neck_circumference);
+                                }
+                                ?>
+                                <span class="d-block mb-2">
+                                    Nick Measurement: {{ $last_info != null ? $last_nick_measurement : $first_nick_measurement }} CM
+                                    @if($last_info != null)
+                                        ({{ !isNegative($last_nick_measurement - $first_nick_measurement) ? '+' : '' }}{{ $last_nick_measurement - $first_nick_measurement }} CM)
+                                    @endif
+                                </span>
+
+                                <?php
+                                 $first_waist_measurement = convertInchToCM($first_info->waist_measurement_unit, $first_info->waist_measurement);
+                                 if($last_info != null){
+                                    $last_waist_measurement = convertInchToCM($last_info->waist_measurement_unit, $last_info->waist_measurement);
+                                 }
+                                ?>
                                 <span class="d-block mb-2">
                                     Waist Measurement: {{ $last_info != null ? $last_waist_measurement : $first_waist_measurement }} CM
                                     @if($last_info != null)
@@ -231,17 +289,12 @@
                                 <span class="d-block mb-2">
                                     Chest Measurement: {{ $last_info != null ? $last_chest_measurement : $first_chest_measurement }} CM
                                     @if($last_info != null)
-                                                ({{ !isNegative($last_chest_measurement - $first_chest_measurement) ? '+' : '' }}{{ $last_chest_measurement - $first_chest_measurement }} CM)
-                                    @endif
-                                 </span>
-
-
-                                <span class="d-block">
-                                    Resting heart rate: {{ $last_info != null ? $last_info->resting_heart_rate : $first_info->resting_heart_rate }}%
-                                    @if($last_info != null)
-                                        ({{ !isNegative($last_info->resting_heart_rate - $first_info->resting_heart_rate) ? '+' : '' }}{{ $last_info->resting_heart_rate - $first_info->resting_heart_rate }}%)
+                                        ({{ !isNegative($last_chest_measurement - $first_chest_measurement) ? '+' : '' }}{{ $last_chest_measurement - $first_chest_measurement }} CM)
                                     @endif
                                 </span>
+
+
+
 
                             </div>
                         </div>

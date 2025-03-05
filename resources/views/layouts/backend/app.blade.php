@@ -38,7 +38,7 @@
             border-bottom: 1px solid #E4E6E8;
         }
     </style>
-
+    <script src="{{ asset('backend/assets') }}/vendor/libs/jquery/jquery.js"></script>
     @stack('css')
 
     <!-- Helpers -->
@@ -101,7 +101,7 @@
 <!-- build:js assets/vendor/js/core.js -->
 
 
-<div class="modal fade" id="main_modal" tabindex="-1" aria-hidden="true">
+<div class="modal fade large_modal" id="main_modal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -121,7 +121,7 @@
 </div>
 
 
-<script src="{{ asset('backend/assets') }}/vendor/libs/jquery/jquery.js"></script>
+
 <script src="{{ asset('backend/assets') }}/vendor/libs/popper/popper.js"></script>
 <script src="{{ asset('backend/assets') }}/vendor/js/bootstrap.js"></script>
 <script src="{{ asset('backend/assets') }}/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
@@ -290,13 +290,13 @@
             var link = $(this).attr("href");
             var title = $(this).data("title");
             var size = $(this).data("size");
-
+            $("#main_modal").removeClass('modal-xl');
             $.ajax({
                 url: link,
                 success: function(data){
                     $('#main_modal .modal-body').html(data);
                     $('#main_modal .modal-title').html(title);
-                    $('#main_modal .large_modal').addClass('modal-'+size);
+                    $('#main_modal').addClass('modal-'+size);
                     $('#main_modal').modal('show');
 
                 }

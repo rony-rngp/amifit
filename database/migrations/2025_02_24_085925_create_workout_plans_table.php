@@ -14,12 +14,15 @@ return new class extends Migration
         Schema::create('workout_plans', function (Blueprint $table) {
             $table->id();
             $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
+            $table->integer('exercise_id');
             $table->string('day');
             $table->string('workout');
             $table->string('sets');
             $table->string('reps');
             $table->string('rest');
-            $table->string('suggestion');
+            $table->string('weight')->nullable();
+            $table->string('youtube_link')->nullable();
+            $table->string('suggestion')->nullable();
             $table->timestamps();
         });
     }

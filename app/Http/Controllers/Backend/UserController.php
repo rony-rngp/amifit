@@ -450,7 +450,11 @@ class UserController extends Controller
     public function order_details($id)
     {
         $order = Order::with('user.last_user_info', 'order_payments', 'diet_plans', 'workout_plans')->find($id);
-        return view('backend.order.order_details', compact('order'));
+        $workout_plans = WorkoutPlan::where('order_id', $id)
+            ->orderByRaw("FIELD(day, 'day_1', 'day_2', 'day_3', 'day_4', 'day_5', 'day_6', 'day_7')") // custom order for days
+            ->get();
+        $workout_data = $workout_plans->groupBy('day');
+        return view('backend.order.order_details', compact('order', 'workout_data'));
     }
 
     public function update_payment_status(Request $request)
@@ -481,6 +485,56 @@ class UserController extends Controller
         $columns = Schema::getColumnListing('food_nutrition');
         $food_nutrition = FoodNutrition::where('id', $id)->first();
         return view('backend.order.diet_plan.food_nutrition_details', compact('columns', 'food_nutrition'));
+    }
+
+    public function add_food_nutrition(Request $request, $food_id="")
+    {
+        if ($request->isMethod('post')){
+            if ($food_id != ''){
+                $request->validate([
+                    'name' => 'required|unique:food_nutrition,Name,'.$food_id,
+                    'carbohydrate' => 'required|numeric',
+                    'protein' => 'required|numeric',
+                    'fat' => 'required|numeric',
+                    'fiber' => 'required|numeric',
+                    'sugar' => 'required|numeric',
+                    'calorie' => 'required|numeric',
+                ]);
+            }else{
+                $request->validate([
+                    'name' => 'required|unique:food_nutrition,Name',
+                    'carbohydrate' => 'required|numeric',
+                    'protein' => 'required|numeric',
+                    'fat' => 'required|numeric',
+                    'fiber' => 'required|numeric',
+                    'sugar' => 'required|numeric',
+                    'calorie' => 'required|numeric',
+                ]);
+            }
+
+            if ($food_id != ''){
+                $food_nutrition = FoodNutrition::find($food_id);
+            }else{
+                $food_nutrition = new FoodNutrition();
+            }
+
+            $food_nutrition['Name'] = $request->name;
+            $food_nutrition['Carbohydrate_(g)'] = $request->carbohydrate;
+            $food_nutrition['Protein_(g)'] = $request->protein;
+            $food_nutrition['Fat_(g)'] = $request->fat;
+            $food_nutrition['Fiber_(g)'] = $request->fiber;
+            $food_nutrition['Sugars_(g)'] = $request->sugar;
+            $food_nutrition['Calories'] = $request->calorie;
+            $food_nutrition->save();
+            if($food_id == ''){
+                $msg = 'Food nutrition added successfully';
+            }else{
+                $msg = 'Food nutrition updated successfully';
+            }
+            return redirect()->route('admin.add_food_nutrition', $food_nutrition->id)->with('success', $msg);
+        }
+        $food_nutrition = FoodNutrition::where('id', $food_id)->first();
+        return view('backend.order.diet_plan.add_food_nutrition', compact('food_nutrition'));
     }
 
     public function store_diet_plan(Request $request, $order_id)
@@ -623,24 +677,42 @@ class UserController extends Controller
                 'sets' => 'required',
                 'reps' => 'required',
                 'rest' => 'required',
-                'suggestion' => 'required',
             ]);
             if ($validator->fails()) {
                 return response()->json(['result' => 'error', 'message' => $validator->errors()->all()]);
             }
 
+            if($request->exercise_id == ''){
+                return response()->json(['result' => 'error', 'message' => ['food' => 'Please select a workout from table']]);
+            }
+
             $workout_plan = new WorkoutPlan();
             $workout_plan->order_id = $order_id;
+            $workout_plan->exercise_id = $request->exercise_id;
             $workout_plan->day = $request->day;
             $workout_plan->workout = $request->workout;
+            $workout_plan->weight = $request->weight;
             $workout_plan->sets = $request->sets;
             $workout_plan->reps = $request->reps;
             $workout_plan->rest = $request->rest;
+            $workout_plan->youtube_link = $request->youtube_link;
             $workout_plan->suggestion = $request->suggestion;
             $workout_plan->save();
             return response()->json(['result' => 'success', 'message' => 'Workout plan added successfully.']);
         }
-        return view('backend.order.workout_plan.create', compact('order_id'));
+        $exercises = DB::table('exercises')
+            ->select('id', 'Exercise', 'Difficulty_Level', 'Target_Muscle_Group', 'Prime_Mover_Muscle', 'Primary_Equipment', 'Body_Region', 'Force_Type', 'Short_YouTube_Demonstration')
+            ->get()->toArray();
+        return view('backend.order.workout_plan.create', compact('order_id', 'exercises'));
+    }
+
+    public function edit_workout_plan($id)
+    {
+        $exercises = DB::table('exercises')
+            ->select('id', 'Exercise', 'Difficulty_Level', 'Target_Muscle_Group', 'Prime_Mover_Muscle', 'Primary_Equipment', 'Body_Region', 'Force_Type', 'Short_YouTube_Demonstration')
+            ->get()->toArray();
+        $workout_plan = WorkoutPlan::find($id);
+        return view('backend.order.workout_plan.edit', compact('workout_plan', 'exercises'));
     }
 
     public function update_workout_plan(Request $request, $id)
@@ -651,18 +723,25 @@ class UserController extends Controller
             'sets' => 'required',
             'reps' => 'required',
             'rest' => 'required',
-            'suggestion' => 'required',
         ]);
         if ($validator->fails()) {
             return response()->json(['result' => 'error', 'message' => $validator->errors()->all()]);
         }
 
+        if($request->exercise_id == ''){
+            return response()->json(['result' => 'error', 'message' => ['food' => 'Please select a workout from table']]);
+        }
+
+
         $workout_plan = WorkoutPlan::find($id);
+        $workout_plan->exercise_id = $request->exercise_id;
         $workout_plan->day = $request->day;
         $workout_plan->workout = $request->workout;
+        $workout_plan->weight = $request->weight;
         $workout_plan->sets = $request->sets;
         $workout_plan->reps = $request->reps;
         $workout_plan->rest = $request->rest;
+        $workout_plan->youtube_link = $request->youtube_link;
         $workout_plan->suggestion = $request->suggestion;
         $workout_plan->save();
         return response()->json(['result' => 'success', 'message' => 'Workout plan updated successfully.']);

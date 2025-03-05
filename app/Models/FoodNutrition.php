@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class FoodNutrition extends Model
 {
-    //
+    public $timestamps = false;
 }

@@ -230,6 +230,7 @@ function calculateBmiAndBmr($user){
 
 }
 
+
 function convertWeightKG($weight_unit, $weight){
     $weightInKg = 0;
     if ($weight_unit === 'kg') {
@@ -287,4 +288,28 @@ function generateUniqueCode()
     } while (\App\Models\User::where('otp', $code)->exists());
 
     return $code;
+}
+
+function calculateBmi($data){
+    $heightInMeters = 0;
+    if ($data['height_unit'] === 'cm') {
+        $heightInMeters = (float) $data['height_cm'] / 100;
+    } else {
+        $heightInInches = ((float)$data['height_feet'] * 12) + (float)$data['height_inches'];
+        $heightInMeters = $heightInInches * 0.0254;
+    }
+
+    // Convert weight to kilograms
+    $weightInKg = 0;
+    if ($data['weight_unit'] === 'kg') {
+        $weightInKg = (float)$data['weight'];
+    } else {
+        $weightInKg = (float)$data['weight'] * 0.453592;
+    }
+
+    // Calculate BMI
+    $bmi = $weightInKg / ($heightInMeters * $heightInMeters);
+
+    return round($bmi, 2);
+
 }
