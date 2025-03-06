@@ -5,6 +5,14 @@
 @push('css')
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css">
     <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <style>
+        .fc-event-time{display: none !important;}
+
+        @media (max-width: 576px) {
+            .fc-header-toolbar.fc-toolbar{display: block !important;}
+        }
+
+    </style>
 @endpush
 
 @section('content')
@@ -46,6 +54,7 @@
                                 <div class="mb-4">
                                     <p class="fw-bold">Client Details</p>
                                     <span class="d-block mb-1"><span class="fw-bold">Name</span> : {{ @$order->user->name }}</span>
+                                    <span class="d-block mb-1"><span class="fw-bold">Email</span> : {{ @$order->user->email }}</span>
                                     <span class="d-block mb-1"><span class="fw-bold">Age</span> : {{ checkAge(@$order->user->birthday) }}</span>
                                     <span class="d-block mb-1"><span class="fw-bold">BMI</span> : {{ @$bmi_bmr['bmi'] ?? 'N/A' }}</span>
                                     <span class="d-block mb-1"><span class="fw-bold">BMR</span> : {{ @$bmi_bmr['bmr'] ?? 'N/A' }}</span>
@@ -103,9 +112,17 @@
                                 <br>
                                 <h5 class="mb-2">Fitness Assessment</h5>
                                 <span class="d-block mb-1"><span class="fw-bold">Can you perform a bodyweight squat?</span> : {{ @$order->user->last_user_info->can_you_perform_a_bodyweight_squat == 'dont_know' ? 'I Don’t Know' : ucfirst(@$order->user->last_user_info->can_you_perform_a_bodyweight_squat) }} </span>
-                                <span class="d-block mb-1"><span class="fw-bold">Can you perform a Push-Up?</span> : {{ @$order->user->last_user_info->can_you_perform_a_push_up == 'dont_know' ? 'I Don’t Know' : ucfirst(@$order->user->last_user_info->can_you_perform_a_push_up) }} </span>
-                                <span class="d-block mb-1"><span class="fw-bold">Can you perform a Pull-Up?</span> : {{ @$order->user->last_user_info->can_you_perform_a_pull_up == 'dont_know' ? 'I Don’t Know' : ucfirst(@$order->user->last_user_info->can_you_perform_a_pull_up) }} </span>
+                                @if(@$order->user->last_user_info->can_you_perform_a_bodyweight_squat == 'yes')
                                 <span class="d-block mb-1"><span class="fw-bold">Max Reps at Bodyweight</span> : {{ @$order->user->last_user_info->max_reps_at_bodyweight }} </span>
+                                @endif
+                                <span class="d-block mb-1"><span class="fw-bold">Can you perform a Push-Up?</span> : {{ @$order->user->last_user_info->can_you_perform_a_push_up == 'dont_know' ? 'I Don’t Know' : ucfirst(@$order->user->last_user_info->can_you_perform_a_push_up) }} </span>
+                                @if(@$order->user->last_user_info->can_you_perform_a_push_up == 'yes')
+                                    <span class="d-block mb-1"><span class="fw-bold">Max Reps at Push-Up</span> : {{ @$order->user->last_user_info->max_reps_at_push_up }} </span>
+                                @endif
+                                <span class="d-block mb-1"><span class="fw-bold">Can you perform a Pull-Up?</span> : {{ @$order->user->last_user_info->can_you_perform_a_pull_up == 'dont_know' ? 'I Don’t Know' : ucfirst(@$order->user->last_user_info->can_you_perform_a_pull_up) }} </span>
+                                @if(@$order->user->last_user_info->can_you_perform_a_pull_up == 'yes')
+                                    <span class="d-block mb-1"><span class="fw-bold">Max Reps at Pull-Up</span> : {{ @$order->user->last_user_info->max_reps_at_pull_up }} </span>
+                                @endif
                                 <span class="d-block mb-1"><span class="fw-bold">Flexibility Assessment</span> : {{ @$order->user->last_user_info->flexibility_assessment }} </span>
 
                                 <br>
@@ -335,9 +352,14 @@
                                                     <td>{{ $workout_data['rest'] }}</td>
                                                     <td title="{{ $workout_data['suggestion'] }}">{{ \Illuminate\Support\Str::limit($workout_data['suggestion'], 20) }}</td>
                                                     <td>
-                                                        <a  href="{{ route('admin.orders.edit_workout_plan', $workout_data->id) }}" data-size="xl" data-title="Edit Workout Plan" class="btn btn-sm btn-primary ajax-modal">Edit</a>
-                                                        &nbsp;
-                                                        <a onclick="return confirm('Are you sure?')" href="{{ route('admin.orders.destroy_workout_plan', $workout_data->id) }}" class="btn btn-sm btn-danger">Delete</a>
+                                                        @if($workout_data['youtube_link'] != '')
+                                                        <a href="{{ $workout_data['youtube_link'] }}" target="_blank" class="btn btn-sm btn-success"><i class="bx bxl-youtube"></i></a>
+                                                        @endif
+                                                        @if(@$workout_data['exercise']['gif_file'])
+                                                        <a href="{{ asset('backend/upload/exercise/'.$workout_data['exercise']['gif_file']) }}" target="_blank" class="btn btn-sm btn-primary"><i class="bx bxs-file-gif"></i></a>
+                                                        @endif
+                                                        <a  href="{{ route('admin.orders.edit_workout_plan', $workout_data->id) }}" data-size="xl" data-title="Edit Workout Plan" class="btn btn-sm btn-primary ajax-modal"><i class="bx bx-edit"></i></a>
+                                                        <a onclick="return confirm('Are you sure?')" href="{{ route('admin.orders.destroy_workout_plan', $workout_data->id) }}" class="btn btn-sm btn-danger"><i class="bx bx-trash"></i></a>
 
                                                     </td>
                                                 </tr>
@@ -491,6 +513,25 @@
 
         </div>
 
+
+        <div class="row mb-6 mb-6">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="d-flex justify-content-between align-items-center border-bottom" >
+                        <h5 class="card-header">Interactive Calender</h5>
+                        @if($order->status == 'Running')
+                            <div class="me-5">
+                                <a href="{{ route('admin.orders.add_calender_event', \Illuminate\Support\Facades\Crypt::encrypt($order->id)) }}" data-title="Calender Event" class="btn btn-primary ajax-modal"> Add Event</a>
+                            </div>
+                        @endif
+                    </div>
+                    <div class="card-body">
+                        <div id='calendar'></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="row">
             <div class="col-md-12 mb-6">
                 <div class="card">
@@ -550,5 +591,67 @@
                 }
             });
         }
+    </script>
+
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
+    <script>
+        $(document).ready(function() {
+            var calendar = new FullCalendar.Calendar($('#calendar')[0], {
+                themeSystem: 'bootstrap4',
+                events: [
+                        @foreach($event_calenders as $event_calender)
+                    {
+                        title: 'Missed: {{ $event_calender->missed_diet == 1 ? 'Diet' : ''  }} @if($event_calender->missed_diet && $event_calender->missed_workout) & @endif @if($event_calender->missed_workout == 1) Workout @endif',
+                        start: '{{ $event_calender->date.'T00:00:00' }}',
+                        end: '{{ $event_calender->date.'T23:59:59' }}',
+                    },
+                    @endforeach
+                ],
+                dateClick: function(info) {
+                    // Get the "Add Event" button
+                    var addEventButton = $('a[data-title="Calender Event"]');
+                    if (addEventButton.length) {
+                        // Set the clicked date in the event date field (for form submission if necessary)
+
+                        // Dynamically update the button's href to include the selected date as a URL parameter
+                        var url = addEventButton.attr('href');  // Get the current href of the "Add Event" button
+                        url = new URL(url, window.location.origin);  // Create a full URL from the relative href
+
+                        // Append the selected date to the URL as a query parameter (e.g., ?date=2025-02-27)
+                        url.searchParams.set('date', info.dateStr);
+
+                        // Update the href of the "Add Event" button with the new URL
+                        addEventButton.attr('href', url.toString());
+
+                        // Trigger the click event on the "Add Event" button
+                        addEventButton.trigger('click');
+                    }
+
+                },
+                eventClick: function(info) {
+                    var date = info.event.startStr.split("T")[0]; // Extract only the date
+                    calendar.trigger('dateClick', { dateStr: date });
+                },
+                eventDidMount: function(info) {
+                    var eventElement = info.el; // Event DOM element
+                    $(info.el).attr('title', info.event.title);
+                    $(eventElement).css({
+                        'background-color': '#3788D8',
+                        'color': 'white',
+                        'overflow': 'visible',
+                    });
+                    /*$(eventElement).css({
+                        'background-color': '#3788D8',
+                        'color': 'white',
+                        'white-space': 'normal', // Allow text to wrap
+                        'overflow': 'visible',
+                        'text-align': 'center',
+                        'padding': '5px' // Add padding for better readability
+                    });*/
+                }
+            });
+
+            calendar.render();
+        });
     </script>
 @endpush

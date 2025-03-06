@@ -7,6 +7,7 @@ use App\Models\EventCalender;
 use App\Models\Order;
 use App\Models\User;
 use App\Models\UserInfo;
+use App\Models\WorkoutPlan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
@@ -100,10 +101,14 @@ class UserController extends Controller
                 Rule::when(request('hydration_intake_unit') === 'liters', ['min:0.5', 'max:10']),
                 Rule::when(request('hydration_intake_unit') === 'ounces', ['min:16', 'max:340']),
             ],
+
             'can_you_perform_a_bodyweight_squat' => 'required',
+            'max_reps_at_bodyweight' => 'required_if:can_you_perform_a_bodyweight_squat,yes|nullable|numeric',
             'can_you_perform_a_push_up' => 'required',
+            'max_reps_at_push_up' => 'required_if:can_you_perform_a_push_up,yes|nullable|numeric',
             'can_you_perform_a_pull_up' => 'required',
-            'max_reps_at_bodyweight' => 'required',
+            'max_reps_at_pull_up' => 'required_if:can_you_perform_a_pull_up,yes|nullable|numeric',
+
             'flexibility_assessment' => 'required',
             'range_of_motion_for_key_joints' => 'nullable',
 
@@ -170,10 +175,26 @@ class UserController extends Controller
         $user_info->number_of_steps_per_day = $request->number_of_steps_per_day;
         $user_info->hydration_intake_unit = $request->hydration_intake_unit;
         $user_info->hydration_intake = $request->hydration_intake;
+
         $user_info->can_you_perform_a_bodyweight_squat = $request->can_you_perform_a_bodyweight_squat;
+        if ($request->can_you_perform_a_bodyweight_squat == 'yes'){
+            $user_info->max_reps_at_bodyweight = $request->max_reps_at_bodyweight;
+        }else{
+            $user_info->max_reps_at_bodyweight = null;
+        }
         $user_info->can_you_perform_a_push_up = $request->can_you_perform_a_push_up;
+        if ($request->can_you_perform_a_push_up == 'yes'){
+            $user_info->max_reps_at_push_up = $request->max_reps_at_push_up;
+        }else{
+            $user_info->max_reps_at_push_up = null;
+        }
         $user_info->can_you_perform_a_pull_up = $request->can_you_perform_a_pull_up;
-        $user_info->max_reps_at_bodyweight = $request->max_reps_at_bodyweight;
+        if ($request->can_you_perform_a_pull_up == 'yes'){
+            $user_info->max_reps_at_pull_up = $request->max_reps_at_pull_up;
+        }else{
+            $user_info->max_reps_at_pull_up = null;
+        }
+
         $user_info->flexibility_assessment = $request->flexibility_assessment;
         $user_info->range_of_motion_for_key_joints = $request->range_of_motion_for_key_joints;
 
@@ -234,10 +255,14 @@ class UserController extends Controller
     public function order_details($order_id)
     {
         $order_id = Crypt::decrypt($order_id);
-        $order = Order::with('order_payments', 'diet_plans', 'workout_plans')->where(['user_id' => Auth::user()->id, 'id' => $order_id])->first();
+        $order = Order::with('order_payments', 'diet_plans')->where(['user_id' => Auth::user()->id, 'id' => $order_id])->first();
         $event_calenders = EventCalender::where('order_id', $order->id)->get();
         $user_infos = UserInfo::where('user_id', Auth::user()->id)->get();
-        return view('frontend.user.order.order_details', compact('order', 'event_calenders', 'user_infos'));
+        $workout_plans = WorkoutPlan::with('exercise:id,Exercise,gif_file')->where('order_id', $order_id)
+            ->orderByRaw("FIELD(day, 'day_1', 'day_2', 'day_3', 'day_4', 'day_5', 'day_6', 'day_7')") // custom order for days
+            ->get();
+        $workout_data = $workout_plans->groupBy('day');
+        return view('frontend.user.order.order_details', compact('order', 'event_calenders', 'user_infos', 'workout_data'));
     }
 
     public function add_calender_event(Request $request, $order_id)

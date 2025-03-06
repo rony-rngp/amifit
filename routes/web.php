@@ -96,17 +96,19 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function (){
 
             Route::post('orders/update-status/{order_id}', 'update_order_status')->name('orders.update_status');
 
-            //exercise
-            Route::controller(\App\Http\Controllers\Backend\ExerciseController::class)->group(function (){
-                Route::get('exercises', 'index')->name('exercises.index');
-                Route::get('exercises/create', 'create')->name('exercises.create');
-                Route::post('exercises/store', 'store')->name('exercises.store');
-                Route::get('exercises/edit/{id}', 'edit')->name('exercises.edit');
-                Route::post('exercises/update/{id}', 'update')->name('exercises.update');
-            });
-
-
+            Route::match(['get', 'post'], '/add-event/{order_id}', 'add_calender_event')->name('orders.add_calender_event');
+            Route::get('destroy-event/{event_id}', 'destroy_event')->name('destroy_event');
         });
+
+        //exercise
+        Route::controller(\App\Http\Controllers\Backend\ExerciseController::class)->group(function (){
+            Route::get('exercises', 'index')->name('exercises.index');
+            Route::get('exercises/create', 'create')->name('exercises.create');
+            Route::post('exercises/store', 'store')->name('exercises.store');
+            Route::get('exercises/edit/{id}', 'edit')->name('exercises.edit');
+            Route::post('exercises/update/{id}', 'update')->name('exercises.update');
+        });
+
 
         //why choose
         Route::resource('why-choose', \App\Http\Controllers\Backend\WhyChooseController::class);

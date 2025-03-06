@@ -313,3 +313,11 @@ function calculateBmi($data){
     return round($bmi, 2);
 
 }
+
+function convertOuncesToLtr($unit, $value){
+    if ($unit === 'ounces') {
+        return round($value * 0.0295735, 2); // Convert ounces to liters
+    } else {
+        return $value; // Return the value unchanged if not 'ounces'
+    }
+}

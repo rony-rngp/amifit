@@ -59,7 +59,9 @@ return new class extends Migration
             $table->enum('can_you_perform_a_bodyweight_squat', ['yes', 'no', 'dont_know'])->nullable();
             $table->enum('can_you_perform_a_push_up', ['yes', 'no', 'dont_know'])->nullable();
             $table->enum('can_you_perform_a_pull_up', ['yes', 'no', 'dont_know'])->nullable();
-            $table->string('max_reps_at_bodyweight')->nullable();
+            $table->integer('max_reps_at_bodyweight')->nullable();
+            $table->integer('max_reps_at_push_up')->nullable();
+            $table->integer('max_reps_at_pull_up')->nullable();
             $table->string('flexibility_assessment')->nullable();
             $table->string('range_of_motion_for_key_joints')->nullable();
 

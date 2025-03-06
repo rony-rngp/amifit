@@ -437,43 +437,68 @@
                             <div class="card-body">
                                 <div class="row">
 
-                                    <div class="mb-4 col-md-6">
-                                        <label class="form-label" for="can_you_perform_a_bodyweight_squat">Can you perform a bodyweight squat? <i class="text-danger">*</i></label>
-                                        <select name="can_you_perform_a_bodyweight_squat" id="can_you_perform_a_bodyweight_squat" class="form-control" required>
-                                            <option value="">Select One</option>
-                                            <option {{ $user_info->can_you_perform_a_bodyweight_squat == 'yes' ? 'selected' : '' }} value="yes">Yes</option>
-                                            <option {{ $user_info->can_you_perform_a_bodyweight_squat == 'no' ? 'selected' : '' }} value="no">No</option>
-                                            <option {{ $user_info->can_you_perform_a_bodyweight_squat == 'dont_know' ? 'selected' : '' }} value="dont_know">I Don’t Know</option>
-                                        </select>
-                                        <span class="text-danger">{{ $errors->has('can_you_perform_a_bodyweight_squat') ? $errors->first('can_you_perform_a_bodyweight_squat') : '' }}</span>
+                                    <div class="col-md-12">
+                                        <div class="row">
+                                            <div class="mb-4 col-md-6">
+                                                <label class="form-label" for="can_you_perform_a_bodyweight_squat">Can you perform a bodyweight squat? <i class="text-danger">*</i></label>
+                                                <select name="can_you_perform_a_bodyweight_squat" id="can_you_perform_a_bodyweight_squat" class="form-control" required>
+                                                    <option value="">Select One</option>
+                                                    <option {{ $user_info->can_you_perform_a_bodyweight_squat == 'yes' ? 'selected' : '' }} value="yes">Yes</option>
+                                                    <option {{ $user_info->can_you_perform_a_bodyweight_squat == 'no' ? 'selected' : '' }} value="no">No</option>
+                                                    <option {{ $user_info->can_you_perform_a_bodyweight_squat == 'dont_know' ? 'selected' : '' }} value="dont_know">I Don’t Know</option>
+                                                </select>
+                                                <span class="text-danger">{{ $errors->has('can_you_perform_a_bodyweight_squat') ? $errors->first('can_you_perform_a_bodyweight_squat') : '' }}</span>
+                                            </div>
+
+                                            <div class="mb-4 col-md-6 {{ $user_info->can_you_perform_a_bodyweight_squat == 'yes' ? '' : 'd-none' }}" id="max_reps_at_bodyweight_div">
+                                                <label class="form-label" for="max_reps_at_bodyweight">Max Reps at Bodyweight<i class="text-danger">*</i></label>
+                                                <input type="number" class="form-control" {{ $user_info->can_you_perform_a_bodyweight_squat == 'yes' ? 'required' : '' }} name="max_reps_at_bodyweight" id="max_reps_at_bodyweight" value="{{ $user_info->max_reps_at_bodyweight }}" >
+                                                <span class="text-danger">{{ $errors->has('max_reps_at_bodyweight') ? $errors->first('max_reps_at_bodyweight') : '' }}</span>
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    <div class="mb-4 col-md-6">
-                                        <label class="form-label" for="can_you_perform_a_push_up">Can you perform a Push-Up? <i class="text-danger">*</i></label>
-                                        <select name="can_you_perform_a_push_up" id="can_you_perform_a_push_up" class="form-control" required>
-                                            <option value="">Select One</option>
-                                            <option {{ $user_info->can_you_perform_a_push_up == 'yes' ? 'selected' : '' }} value="yes">Yes</option>
-                                            <option {{ $user_info->can_you_perform_a_push_up == 'no' ? 'selected' : '' }} value="no">No</option>
-                                            <option {{ $user_info->can_you_perform_a_push_up == 'dont_know' ? 'selected' : '' }} value="dont_know">I Don’t Know</option>
-                                        </select>
-                                        <span class="text-danger">{{ $errors->has('can_you_perform_a_push_up') ? $errors->first('can_you_perform_a_push_up') : '' }}</span>
+
+                                    <div class="col-md-12">
+                                        <div class="row">
+                                            <div class="mb-4 col-md-6">
+                                                <label class="form-label" for="can_you_perform_a_push_up">Can you perform a Push-Up? <i class="text-danger">*</i></label>
+                                                <select name="can_you_perform_a_push_up" id="can_you_perform_a_push_up" class="form-control" required>
+                                                    <option value="">Select One</option>
+                                                    <option {{ $user_info->can_you_perform_a_push_up == 'yes' ? 'selected' : '' }} value="yes">Yes</option>
+                                                    <option {{ $user_info->can_you_perform_a_push_up == 'no' ? 'selected' : '' }} value="no">No</option>
+                                                    <option {{ $user_info->can_you_perform_a_push_up == 'dont_know' ? 'selected' : '' }} value="dont_know">I Don’t Know</option>
+                                                </select>
+                                                <span class="text-danger">{{ $errors->has('can_you_perform_a_push_up') ? $errors->first('can_you_perform_a_push_up') : '' }}</span>
+                                            </div>
+
+                                            <div class="mb-4 col-md-6 {{ $user_info->can_you_perform_a_push_up == 'yes' ? '' : 'd-none' }}" id="max_reps_at_push_up_div">
+                                                <label class="form-label" for="max_reps_at_push_up">Max Reps at Push-Up<i class="text-danger">*</i></label>
+                                                <input type="number" class="form-control" {{ $user_info->can_you_perform_a_push_up == 'yes' ? 'required' : '' }} name="max_reps_at_push_up" id="max_reps_at_push_up" value="{{ $user_info->max_reps_at_push_up }}" >
+                                                <span class="text-danger">{{ $errors->has('max_reps_at_push_up') ? $errors->first('max_reps_at_push_up') : '' }}</span>
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    <div class="mb-4 col-md-6">
-                                        <label class="form-label" for="can_you_perform_a_pull_up">Can you perform a Pull-Up? <i class="text-danger">*</i></label>
-                                        <select name="can_you_perform_a_pull_up" id="can_you_perform_a_pull_up" class="form-control" required>
-                                            <option value="">Select One</option>
-                                            <option {{ $user_info->can_you_perform_a_pull_up == 'yes' ? 'selected' : '' }} value="yes">Yes</option>
-                                            <option {{ $user_info->can_you_perform_a_pull_up == 'no' ? 'selected' : '' }} value="no">No</option>
-                                            <option {{ $user_info->can_you_perform_a_pull_up == 'dont_know' ? 'selected' : '' }} value="dont_know">I Don’t Know</option>
-                                        </select>
-                                        <span class="text-danger">{{ $errors->has('can_you_perform_a_pull_up') ? $errors->first('can_you_perform_a_pull_up') : '' }}</span>
-                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="row">
+                                            <div class="mb-4 col-md-6">
+                                                <label class="form-label" for="can_you_perform_a_pull_up">Can you perform a Pull-Up? <i class="text-danger">*</i></label>
+                                                <select name="can_you_perform_a_pull_up" id="can_you_perform_a_pull_up" class="form-control" required>
+                                                    <option value="">Select One</option>
+                                                    <option {{ $user_info->can_you_perform_a_pull_up == 'yes' ? 'selected' : '' }} value="yes">Yes</option>
+                                                    <option {{ $user_info->can_you_perform_a_pull_up == 'no' ? 'selected' : '' }} value="no">No</option>
+                                                    <option {{ $user_info->can_you_perform_a_pull_up == 'dont_know' ? 'selected' : '' }} value="dont_know">I Don’t Know</option>
+                                                </select>
+                                                <span class="text-danger">{{ $errors->has('can_you_perform_a_pull_up') ? $errors->first('can_you_perform_a_pull_up') : '' }}</span>
+                                            </div>
 
-                                    <div class="mb-4 col-md-6">
-                                        <label class="form-label" for="max_reps_at_bodyweight">Max Reps at Bodyweight (e.g, push-ups, pull-ups) <i class="text-danger">*</i></label>
-                                        <input type="number" step="any" class="form-control" name="max_reps_at_bodyweight" id="max_reps_at_bodyweight" value="{{ $user_info->max_reps_at_bodyweight }}" required >
-                                        <span class="text-danger">{{ $errors->has('max_reps_at_bodyweight') ? $errors->first('max_reps_at_bodyweight') : '' }}</span>
+                                            <div class="mb-4 col-md-6 {{ $user_info->can_you_perform_a_pull_up == 'yes' ? '' : 'd-none' }}" id="max_reps_at_pull_up_div">
+                                                <label class="form-label" for="max_reps_at_pull_up">Max Reps at Pull-Up<i class="text-danger">*</i></label>
+                                                <input type="number" class="form-control" {{ $user_info->can_you_perform_a_pull_up == 'yes' ? 'required' : '' }} name="max_reps_at_pull_up" id="max_reps_at_pull_up" value="{{ $user_info->max_reps_at_pull_up }}" >
+                                                <span class="text-danger">{{ $errors->has('max_reps_at_pull_up') ? $errors->first('max_reps_at_pull_up') : '' }}</span>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <div class="mb-4 col-md-6">
@@ -961,6 +986,39 @@
                     $("#range_of_motion_for_key_joints").val('');
                 } else {
                     $("#range_of_motion_for_key_joints").removeAttr('disabled');
+                }
+            });
+
+            $("#can_you_perform_a_bodyweight_squat").on('change', function () {
+                let can_you_perform_a_bodyweight_squat = $(this).val();
+                if(can_you_perform_a_bodyweight_squat == 'yes'){
+                    $("#max_reps_at_bodyweight_div").removeClass('d-none');
+                    $("#max_reps_at_bodyweight").attr('required', true);
+                }else{
+                    $("#max_reps_at_bodyweight_div").addClass('d-none');
+                    $("#max_reps_at_bodyweight").removeAttr('required');
+                }
+            });
+
+            $("#can_you_perform_a_push_up").on('change', function () {
+                let can_you_perform_a_push_up = $(this).val();
+                if(can_you_perform_a_push_up == 'yes'){
+                    $("#max_reps_at_push_up_div").removeClass('d-none');
+                    $("#max_reps_at_push_up").attr('required', true);
+                }else{
+                    $("#max_reps_at_push_up_div").addClass('d-none');
+                    $("#max_reps_at_push_up").removeAttr('required');
+                }
+            });
+
+            $("#can_you_perform_a_pull_up").on('change', function () {
+                let can_you_perform_a_pull_up = $(this).val();
+                if(can_you_perform_a_pull_up == 'yes'){
+                    $("#max_reps_at_pull_up_div").removeClass('d-none');
+                    $("#max_reps_at_pull_up").attr('required', true);
+                }else{
+                    $("#max_reps_at_pull_up_div").addClass('d-none');
+                    $("#max_reps_at_pull_up").removeAttr('required');
                 }
             });
 
